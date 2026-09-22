@@ -238,7 +238,7 @@ export default function VideoWatch({ videoId }: { videoId: string }) {
     const videoTitle = video.meta?.title || cleanTitleFromFilename(video.name);
     const videoDescription = (
       video.meta?.description_markdown ||
-      `Watch "${videoTitle}" from the Praise Night Media Gallery.`
+      `Watch "${videoTitle}" from the Foursquare Gospel Church Nigeria media archive.`
     ).slice(0, 280);
 
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -498,7 +498,7 @@ export default function VideoWatch({ videoId }: { videoId: string }) {
 
         {related.length > 0 && (
           <div className="related-section">
-            <h2>More Praise Night</h2>
+            <h2>More like this</h2>
             <div className="related-grid">
               {related.map((v) => {
                 const relTitle = v.meta?.title || cleanTitleFromFilename(v.name);
