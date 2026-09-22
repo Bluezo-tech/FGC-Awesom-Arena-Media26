@@ -236,10 +236,10 @@ export default function VideoWatch({ videoId }: { videoId: string }) {
     if (!video) return;
     const shareUrl = `${window.location.origin}/watch/${video.id}`;
     const videoTitle = video.meta?.title || cleanTitleFromFilename(video.name);
-    const videoDescription = (
+    const baseDescription =
       video.meta?.description_markdown ||
-      `Watch "${videoTitle}" from the Foursquare Gospel Church Nigeria media archive.`
-    ).slice(0, 280);
+      `Watch "${videoTitle}" from the Foursquare Awesome Arena Media Archive.`;
+    const videoDescription = `${baseDescription} Built by Bluezo Tech.`.slice(0, 280);
 
     if (typeof navigator !== "undefined" && navigator.share) {
       try {

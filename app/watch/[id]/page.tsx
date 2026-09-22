@@ -14,15 +14,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   if (!video) {
     return {
-      title: "Video Not Found - Foursquare Gospel Church Nigeria Media Archive",
+      title: "Video Not Found - Foursquare Awesome Arena Media Archive",
       description: "The requested video could not be found.",
     };
   }
 
   const title = video.meta?.title || cleanTitleFromFilename(video.name, video.meta?.category);
-  const description =
+  const baseDescription =
     video.meta?.description_markdown ||
-    `Watch "${title}" from the Foursquare Gospel Church Nigeria media archive.`;
+    `Watch "${title}" from the Foursquare Awesome Arena Media Archive.`;
+  const description = `${baseDescription} Built by Bluezo Tech.`.slice(0, 280);
   const imageUrl = getSocialImageUrl(video.meta?.thumbnail_url || video.thumbnailLink);
   const url = `${getSiteUrl()}/watch/${video.id}`;
 
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description,
       url,
       type: "video.other",
-      siteName: "Foursquare Gospel Church Nigeria Media Archive",
+      siteName: "Foursquare Awesome Arena Media Archive",
       images: imageUrl
         ? [
             {
