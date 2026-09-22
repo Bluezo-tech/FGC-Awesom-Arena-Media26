@@ -14,15 +14,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   if (!video) {
     return {
-      title: "Video Not Found - Foursquare Praise Night Media Gallery",
+      title: "Video Not Found - Foursquare Gospel Church Nigeria Media Archive",
       description: "The requested video could not be found.",
     };
   }
 
-  const title = video.meta?.title || cleanTitleFromFilename(video.name);
+  const title = video.meta?.title || cleanTitleFromFilename(video.name, video.meta?.category);
   const description =
     video.meta?.description_markdown ||
-    `Watch "${title}" from the Foursquare Praise Night Media Gallery.`;
+    `Watch "${title}" from the Foursquare Gospel Church Nigeria media archive.`;
   const imageUrl = getSocialImageUrl(video.meta?.thumbnail_url || video.thumbnailLink);
   const url = `${getSiteUrl()}/watch/${video.id}`;
 
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description,
       url,
       type: "video.other",
-      siteName: "Foursquare Praise Night Media Gallery",
+      siteName: "Foursquare Gospel Church Nigeria Media Archive",
       images: imageUrl
         ? [
             {

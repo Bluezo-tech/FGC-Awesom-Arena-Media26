@@ -14,6 +14,7 @@ const DEFAULT_LOGO_URL = "https://foursquare.org.ng/site/cms/uploads/31687402_fo
 
 export default function SiteHeader() {
   const [settings, setSettings] = useState<SiteSettings>({});
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -23,6 +24,15 @@ export default function SiteHeader() {
       })
       .catch(() => {});
   }, []);
+
+  // Close the mobile menu on route/hash navigation so it doesn't stay open
+  // after the person taps a link.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const close = () => setMobileOpen(false);
+    window.addEventListener("hashchange", close);
+    return () => window.removeEventListener("hashchange", close);
+  }, [mobileOpen]);
 
   const logoUrl = settings.logo_url || DEFAULT_LOGO_URL;
 
@@ -36,6 +46,25 @@ export default function SiteHeader() {
         <a href="/#about">About</a>
       </nav>
       <a className="header-link" href="/#library">Browse media <span>↗</span></a>
+      <button
+        type="button"
+        className="mobile-menu-toggle"
+        aria-label={mobileOpen ? "Close menu" : "Open menu"}
+        aria-expanded={mobileOpen}
+        onClick={() => setMobileOpen((v) => !v)}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
+      {mobileOpen && (
+        <div className="mobile-nav-panel" role="dialog" aria-label="Site navigation">
+          <a href="/" onClick={() => setMobileOpen(false)}>Home</a>
+          <a href="/#library" onClick={() => setMobileOpen(false)}>Library</a>
+          <a href="/#about" onClick={() => setMobileOpen(false)}>About</a>
+        </div>
+      )}
     </header>
   );
 }

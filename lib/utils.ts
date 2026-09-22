@@ -1,6 +1,10 @@
 // Generate a clean, human-readable title from a raw Drive filename.
-// Example: "VID_20260822_003750.mp4" -> "Praise Night — Aug 22, 2026"
-export function cleanTitleFromFilename(filename: string, fallback = "Praise Night"): string {
+// Example: cleanTitleFromFilename("VID_20260822_003750.mp4", "Youth") -> "Youth — Aug 22, 2026"
+// The second argument should be the video's actual category from Supabase —
+// never a hardcoded assumption — so an untitled video's generated title
+// reflects what it really is instead of defaulting to one specific event.
+export function cleanTitleFromFilename(filename: string, category?: string | null): string {
+  const fallback = category?.trim() || "Recording";
   const base = filename.replace(/\.[^.]+$/, ""); // strip extension
   const match = base.match(/(\d{4})(\d{2})(\d{2})/); // YYYYMMDD
   if (match) {

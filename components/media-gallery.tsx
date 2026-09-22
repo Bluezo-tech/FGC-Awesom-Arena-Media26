@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { cleanTitleFromFilename, formatCount, formatDate, getWatchHistory } from "@/lib/utils";
+import { cleanTitleFromFilename, formatCount, formatDate, getSocialImageUrl, getWatchHistory } from "@/lib/utils";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 
@@ -25,8 +25,6 @@ type Video = {
   views?: number;
   likes?: number;
 };
-
-const CATEGORIES = ["All", "Featured", "Praise Night", "Worship", "Choir"];
 
 type SiteSettings = {
   church_name?: string;
@@ -72,8 +70,21 @@ export default function MediaGallery() {
     // Deep-linkable category filter (footer "Media" links).
     const params = new URLSearchParams(window.location.search);
     const cat = params.get("category");
-    if (cat && CATEGORIES.includes(cat)) setActiveCategory(cat);
+    if (cat) setActiveCategory(cat);
   }, []);
+
+  // Category chips are derived live from each video's real `category` value
+  // in Supabase — never guessed from filenames, and never hardcoded, so the
+  // filter bar always matches whatever categories actually exist right now.
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>();
+    videos.forEach((video) => {
+      if (video.meta?.published === false) return;
+      const category = video.meta?.category?.trim();
+      if (category) set.add(category);
+    });
+    return ["All", "Featured", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [videos]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -105,8 +116,8 @@ export default function MediaGallery() {
   const featuredRail = useMemo(() => publishedVideos.filter((v) => v.meta?.featured), [publishedVideos]);
 
   const renderRailCard = (video: Video) => {
-    const title = video.meta?.title || cleanTitleFromFilename(video.name);
-    const thumb = video.meta?.thumbnail_url || video.thumbnailLink;
+    const title = video.meta?.title || cleanTitleFromFilename(video.name, video.meta?.category);
+    const thumb = getSocialImageUrl(video.meta?.thumbnail_url || video.thumbnailLink);
     return (
       <a className="rail-card" key={video.id} href={`/watch/${video.id}`}>
         <div className="rail-thumb">
@@ -129,10 +140,20 @@ export default function MediaGallery() {
         <section className="hero">
           <div className="hero-copy">
             <p className="kicker">{settings.church_name || "Foursquare Gospel Church"}</p>
-            <h1>{settings.hero_title ? settings.hero_title : <>Praise Night,<br /><em>preserved.</em></>}</h1>
+            <h1>
+              {settings.hero_title ? (
+                settings.hero_title
+              ) : (
+                <>
+                  Every gathering,
+                  <br />
+                  <em>preserved.</em>
+                </>
+              )}
+            </h1>
             <p className="lede">
               {settings.hero_description ||
-                "A dedicated archive of every Praise Night recording — watch, download, and share the moments that moved us."}
+                "A living archive of every service, programme, and gathering — watch, download, and share the moments that moved us."}
             </p>
             <div className="hero-actions">
               <a className="button primary" href="#library">Explore the library <span>↓</span></a>
@@ -144,8 +165,8 @@ export default function MediaGallery() {
           {featured && (
             <a className="hero-feature" href={`/watch/${featured.id}`}>
               <div className="hero-feature-media">
-                {featured.meta?.thumbnail_url || featured.thumbnailLink ? (
-                  <img src={featured.meta?.thumbnail_url || featured.thumbnailLink} alt="" />
+                {getSocialImageUrl(featured.meta?.thumbnail_url || featured.thumbnailLink) ? (
+                  <img src={getSocialImageUrl(featured.meta?.thumbnail_url || featured.thumbnailLink)} alt="" />
                 ) : (
                   <div className="thumbnail-fallback" />
                 )}
@@ -153,7 +174,7 @@ export default function MediaGallery() {
                 <span className="hero-play">▶</span>
                 <div className="hero-feature-label">
                   <span className="kicker">Featured</span>
-                  <strong>{featured.meta?.title || cleanTitleFromFilename(featured.name)}</strong>
+                  <strong>{featured.meta?.title || cleanTitleFromFilename(featured.name, featured.meta?.category)}</strong>
                   <small>{formatDate(featured.createdTime)}</small>
                 </div>
               </div>
@@ -194,7 +215,7 @@ export default function MediaGallery() {
           </div>
 
           <div className="filter-chips" role="tablist" aria-label="Filter videos">
-            {CATEGORIES.map((cat) => (
+            {categoryOptions.map((cat) => (
               <button
                 key={cat}
                 className={`chip ${activeCategory === cat ? "active" : ""}`}
@@ -225,7 +246,7 @@ export default function MediaGallery() {
 
           {!loading && !error && visible.length === 0 && (
             <div className="state">
-              <strong>{videos.length ? "No recordings match your search." : "The gallery is ready for its first recording."}</strong>
+              <strong>{videos.length ? "No recordings match your search." : "The archive is ready for its first recording."}</strong>
               <p>{videos.length ? "Try another search term or filter." : "When a video is uploaded to the connected Drive folder, it will appear here automatically."}</p>
             </div>
           )}
@@ -233,8 +254,8 @@ export default function MediaGallery() {
           {!loading && !error && visible.length > 0 && (
             <div className="video-grid">
               {visible.map((video) => {
-                const title = video.meta?.title || cleanTitleFromFilename(video.name);
-                const thumbnail = video.meta?.thumbnail_url || video.thumbnailLink;
+                const title = video.meta?.title || cleanTitleFromFilename(video.name, video.meta?.category);
+                const thumbnail = getSocialImageUrl(video.meta?.thumbnail_url || video.thumbnailLink);
                 const category = video.meta?.category;
                 return (
                   <article className="video-card" key={video.id}>
@@ -262,7 +283,7 @@ export default function MediaGallery() {
         <section className="about" id="about">
           <p className="kicker">Made for the moments</p>
           <h2>One place for every gathering.</h2>
-          <p>New uploads are discovered from the church media folder and presented here for a simple, uninterrupted viewing experience.</p>
+          <p>New uploads are discovered from the church media folder and presented here for a simple, uninterrupted viewing experience — across every service, programme, and event.</p>
         </section>
       </main>
 

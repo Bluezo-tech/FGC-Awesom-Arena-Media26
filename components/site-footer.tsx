@@ -74,12 +74,31 @@ const DEFAULT_LOGO_URL = "https://foursquare.org.ng/site/cms/uploads/31687402_fo
 
 export default function SiteFooter() {
   const [settings, setSettings] = useState<SiteSettings>({});
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((b) => {
         if (b?.settings) setSettings(b.settings);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    // Media links reflect whatever categories actually exist in Supabase
+    // right now — never a hardcoded guess, so this list never drifts from
+    // reality as new programmes get added.
+    fetch("/api/videos")
+      .then((r) => r.json())
+      .then((b) => {
+        const set = new Set<string>();
+        (b.videos ?? []).forEach((video: { meta?: { category?: string; published?: boolean } | null }) => {
+          if (video.meta?.published === false) return;
+          const category = video.meta?.category?.trim();
+          if (category) set.add(category);
+        });
+        setCategories(Array.from(set).sort((a, b) => a.localeCompare(b)));
       })
       .catch(() => {});
   }, []);
@@ -145,10 +164,10 @@ export default function SiteFooter() {
 
         <div className="footer-col">
           <p className="footer-title">Media</p>
-          <a href="/?category=Praise%20Night">Praise Night</a>
-          <a href="/?category=Featured">Featured</a>
-          <a href="/?category=Choir">Choir</a>
-          <a href="/?category=Worship">Worship</a>
+          <a href="/#library">All Media</a>
+          {categories.map((cat) => (
+            <a key={cat} href={`/?category=${encodeURIComponent(cat)}#library`}>{cat}</a>
+          ))}
         </div>
 
         <div className="footer-col">
