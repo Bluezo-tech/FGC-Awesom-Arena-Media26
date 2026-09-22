@@ -1,8 +1,8 @@
 # Foursquare Media Gallery (fgs-praise26)
 
-A media gallery web app for **Foursquare Gospel Church Nigeria** — streams videos hosted on Google Drive, with likes, comments (with threaded replies), share tracking, and a CMS-style admin panel.
+A media gallery web app for **Foursquare Gospel Church Awesome Arena** — streams videos hosted on Google Drive, with likes, comments (with threaded replies), share tracking, and a CMS-style admin panel.
 
-- **Live site:** https://fgs-praise26.vercel.app
+- **Live site:** https://fgc-awesome-arena.vercel.app
 - **Repo:** github.com/Bluezo-tech/FGS-Awesom-Arena-Praise-Night26
 - **Built by:** [Bluezo-Tech](https://github.com/Bluezo-tech)
 
